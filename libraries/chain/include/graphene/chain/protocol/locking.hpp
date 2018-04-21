@@ -54,7 +54,6 @@ namespace graphene { namespace chain {
 
         asset                           fee;
         locking_balance_id_type         locking_balance;
-        account_id_type                 creator;
         account_id_type                 owner;
         asset                           amount;
 
@@ -70,7 +69,7 @@ FC_REFLECT( graphene::chain::locking_balance_create_operation::fee_parameters_ty
 FC_REFLECT( graphene::chain::locking_balance_withdraw_operation::fee_parameters_type, (fee))
 
 FC_REFLECT( graphene::chain::locking_balance_create_operation, (fee)(creator)(owner)(amount)(policy))
-FC_REFLECT( graphene::chain::locking_balance_withdraw_operation, (fee)(locking_balance)(creator)(owner)(amount))
+FC_REFLECT( graphene::chain::locking_balance_withdraw_operation, (fee)(locking_balance)(owner)(amount))
 
 FC_REFLECT( graphene::chain::active_locking_policy_initializer, (begin_timestamp)(locking_cliff_seconds))
 FC_REFLECT(graphene::chain::locking_policy_initializer)

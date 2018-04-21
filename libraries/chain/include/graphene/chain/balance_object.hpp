@@ -35,15 +35,22 @@ namespace graphene { namespace chain {
 
          bool is_vesting_balance()const
          { return vesting_policy.valid(); }
+         bool is_locking_balance()const {
+               return locking_policy.valid();
+         }
          asset available(fc::time_point_sec now)const
          {
-            return is_vesting_balance()? vesting_policy->get_allowed_withdraw({balance, now, {}})
-                                       : balance;
+            if (is_vesting_balance())
+                  return vesting_policy->get_allowed_withdraw({balance, now, {}});
+            if (is_locking_balance())
+                  return locking_policy->get_allowed_withdraw({balance, now, {}});
+            return balance;
          }
 
          address owner;
          asset   balance;
          optional<linear_vesting_policy> vesting_policy;
+         optional<active_locking_policy> locking_policy;
          time_point_sec last_claim_date;
          asset_id_type asset_type()const { return balance.asset_id; }
    };

@@ -57,6 +57,8 @@ namespace graphene { namespace chain {
         // total amount of asset to lock
         share_type begin_balance;
 
+        locking_balance_id_type pre_locking_balance_id;
+
         asset get_allowed_withdraw(const locking_policy_context& ctx) const;
         bool is_deposit_allowed(const locking_policy_context& ctx) const;
         bool is_deposit_locked_allowed(const locking_policy_context& ctx) const;
@@ -80,8 +82,8 @@ namespace graphene { namespace chain {
         // creator is who sent the transaction
         // owner is who sent the transaction
         account_id_type owner;
-        account_id_type creator;
-
+        // if this balance belongs to owner, point to creator's balance
+        locking_balance_id_type pre_locking_balance_id;
         //total amount of locking balance
         asset balance;
         // policy
@@ -126,6 +128,7 @@ FC_REFLECT(graphene::chain::active_locking_policy,
             (begin_timestamp)
             (locking_cliff_seconds)
             (begin_balance)  
+            (pre_locking_balance_id)
           )
 
 FC_REFLECT_TYPENAME(graphene::chain::locking_policy)
@@ -133,7 +136,7 @@ FC_REFLECT_TYPENAME(graphene::chain::locking_policy)
 FC_REFLECT_DERIVED( graphene::chain::locking_balance_object,
                     (graphene::db::object),
                     (owner)
-                    (creator)
+                    (pre_locking_balance_id)
                     (balance)
                     (policy)
                   )
