@@ -121,3 +121,19 @@ namespace graphene { namespace chain {
 
     typedef generic_index<locking_balance_object, locking_balance_multi_index_type> locking_balance_index; 
 } } 
+
+FC_REFLECT(graphene::chain::active_locking_policy,
+            (begin_timestamp)
+            (locking_cliff_seconds)
+            (begin_balance)  
+          )
+
+FC_REFLECT_TYPENAME(graphene::chain::locking_policy)
+
+FC_REFLECT_DERIVED( graphene::chain::locking_balance_object,
+                    (graphene::db::object),
+                    (owner)
+                    (creator)
+                    (balance)
+                    (policy)
+                  )
