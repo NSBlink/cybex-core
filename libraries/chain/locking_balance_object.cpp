@@ -57,7 +57,7 @@ namespace graphene { namespace chain {
         return asset(allowed_withdraw, ctx.blance.asset_id);
     }
 
-    void active_locking_policy::on_deposit(const locking_policy_context& ctx) {
+    void active_locking_policy::on_deposit(const locking_policy_context& ctx) const {
 
     }
     
@@ -66,5 +66,65 @@ namespace graphene { namespace chain {
       && sum_below_max_shares(ctx.amount, ctx.balance); 
     }
 
+    void active_locking_policy::on_withdraw(const locking_policy_context& ctx) const {
+
+    }
+
+    bool active_locking_policy::is_withdraw_allowed(const locking_policy_context& ctx) {
+        return (ctx.amount.asset_id == ctx.balance.asset_id)
+          && (ctx.amount <= get_allowed_withdraw(ctx)); 
+    }
     
+    #define LOCKING_VISITOR(NAME, MAYBE_CONST)                    \
+    struct NAME ## _visitor                                       \
+    {                                                             \
+        typedef decltype(                                         \
+            std::declval<active_locking_policy>().NAME(           \
+                std::declval<locking_policy_context>())           \
+            ) result_type;                                        \
+                                                                  \
+        NAME ## _visitor(                                         \
+            const asset& balance,                                 \
+            const time_point_sec& now,                            \
+            const asset& amount                                   \
+            )                                                     \
+        : ctx(balance, now, amount) {}                            \
+                                                                  \
+        template< typename Policy >                               \
+        result_type                                               \
+        operator()(MAYBE_CONST Policy& policy) MAYBE_CONST        \
+        {                                                         \
+            return policy.NAME(ctx);                              \
+        }                                                         \
+        locking_policy_context ctx;                               \
+    }
+
+    LOCKING_VISITOR(on_deposit,);
+    LOCKING_VISITOR(on_deposit_vested,);
+    LOCKING_VISITOR(on_withdraw,);
+    LOCKING_VISITOR(is_deposit_allowed, const);
+    LOCKING_VISITOR(is_withdraw_allowed, const);
+    LOCKING_VISITOR(get_allowed_withdraw, const);
+    
+    bool locking_balance_object::is_deposit_allowed(const time_point_sec& now, const asset& amount) const {
+        return policy.visit(is_deposit_allowed_visitor(balance, now, amount));
+    }
+    bool locking_balance_object::is_withdraw_allowed(const time_point_sec& now, const asset& amount)const {
+        bool result = policy.visit(is_withdraw_allowed_visitor(balance, now, amount));
+        // if some policy allows you to withdraw more than your balance,
+        //    there's a programming bug in the policy algorithm
+        assert((amount <= balance) || (!result));
+        return result;
+    }
+    void locking_balance_object::withdraw(const time_point_sec& now, const asset& amount) {
+        assert(amount <= balance);
+        on_withdraw_visitor vtor(balance, now, amount);
+        policy.visit(vtor);
+        balance -= amount;
+    }
+    asset locking_balance_object::get_allowed_withdraw(const time_point_sec& now) const {
+        asset amount = asset();
+        return policy.visit(get_allowed_withdraw_visitor(balance, now, amount));
+    }
+
 } }
