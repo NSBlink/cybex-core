@@ -132,6 +132,7 @@ namespace graphene { namespace chain {
       operation_history_object_type,
       withdraw_permission_object_type,
       vesting_balance_object_type,
+      locking_balance_object_type,
       worker_object_type,
       balance_object_type,
       crowdfund_object_type,
@@ -192,6 +193,7 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, operation_history_object_type,  operation_history_object>     operation_history_id_type;
    typedef object_id< protocol_ids, withdraw_permission_object_type,withdraw_permission_object>   withdraw_permission_id_type;
    typedef object_id< protocol_ids, vesting_balance_object_type,    vesting_balance_object>       vesting_balance_id_type;
+   typedef object_id< protocol_ids, locking_balance_object_type,    locking_balance_object>       locking_balance_id_type;
    typedef object_id< protocol_ids, worker_object_type,             worker_object>                worker_id_type;
    typedef object_id< protocol_ids, balance_object_type,            balance_object>               balance_id_type;
    typedef object_id< protocol_ids, crowdfund_object_type,          crowdfund_object>             crowdfund_id_type;
@@ -343,6 +345,7 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (operation_history_object_type)
                  (withdraw_permission_object_type)
                  (vesting_balance_object_type)
+                 (locking_balance_object_type)
                  (worker_object_type)
                  (balance_object_type)
                  (crowdfund_object_type)
