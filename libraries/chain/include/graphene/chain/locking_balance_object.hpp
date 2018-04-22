@@ -115,9 +115,6 @@ namespace graphene { namespace chain {
             ordered_non_unique< tag<by_account>,
                 member<locking_balance_object, account_id_type, &locking_balance_object::owner>
             >
-            ordered_non_unique< tag<by_account>,
-                member<locking_balance_object, account_id_type, &locking_balance_object::creator>
-            >
         >
     > locking_balance_multi_index_type;
 

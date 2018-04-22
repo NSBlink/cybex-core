@@ -332,6 +332,9 @@ namespace graphene { namespace chain {
           * 
           * @return ID of newly created VBO, but only if VBO was created.
           */
+
+         void adjust_locking_balance(account_id_type account, asset delta, struct active_locking_policy &lp);
+
          optional< vesting_balance_id_type > deposit_lazy_vesting(
             const optional< vesting_balance_id_type >& ovbid,
             share_type amount,

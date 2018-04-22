@@ -102,6 +102,52 @@ void database::adjust_vesting_balance(account_id_type account, asset delta,struc
 
 } FC_CAPTURE_AND_RETHROW( (account)(delta) ) }
 
+void database::adjust_locking_balance(account_id_type creator, account_id_type owner, const public_key_type &  pub_key, asset delta, struct active_locking_policy& lp) {
+      try {
+            if (delta.amount == 0) 
+                  return ;
+            account_object acc_creator = creator(*this);
+
+            address addr_creator, addr_owner;
+
+            FC_ASSERT(acc_creator.owner.key_auths.size()+acc_creator.active.key_auths.size()>0,
+                  "no ${a}'s keys",
+                  ("a",creator(*this).name));
+            fc::ecc::public_key pk;
+            if(acc_creatoracc.owner.key_auths.size()>0)
+            {
+                  pk   = acc_creator.owner.key_auths.begin()->first.operator fc::ecc::public_key();
+            }
+            else //if(acc.active.key_auths.size()>0)
+            {
+                  pk  = acc_creator.active.key_auths.begin()->first.operator fc::ecc::public_key();
+            }
+            addr_creator =  pts_address( pk, false, 56 ) ;
+            
+            account_object acc_owner= owner(*this);
+
+            fc::ecc::public_key pk_owner = fc::ecc::public_key((fc::ecc::public_key_data)pub_key);
+            address addr_owner =  pts_address( pk_owner, false, 56 ) ;
+
+
+
+            const lbo = create<locking_balance_object>([addr_creator, &delta, lp](balance_object& b) {
+                  b.owner = addr_creator;
+                  b.balance = delta;
+                  b.locking_policy = lp;
+                  b.pre_locking_balance_id = NULL;
+            })
+
+            create<balance_object>([addr_owner, &delta, lp](balance_object& b) {
+                  b.owner = addr_owner;
+                  b.balance = delta;
+                  b.locking_policy = lp;
+                  b.pre_locking_balance_id = lbo.id;
+            })
+
+      }
+}
+
 //
 // vesting balance objects of the same asset type should not be merged.
 //  \because they have differnt begin time. 
